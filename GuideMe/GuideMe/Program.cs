@@ -333,7 +333,7 @@ string GetHomePage(string antiforgeryToken)
                        <!-- Right Panel: Map -->
                        <div id=""map-panel"" class=""bg-white rounded-lg shadow overflow-hidden sticky top-8 hidden"">
                            <div class=""p-4 border-b bg-gray-50 flex justify-between items-center"">
-                               <h3 class=""font-semibold text-gray-700"">Tour Map</h3>
+                               <h3 id=""map-panel-title"" class=""font-semibold text-gray-700"">Tour Map</h3>
                                <button onclick=""document.getElementById('map-panel').classList.add('hidden'); activeTourId = null;"" 
                                        class=""text-gray-500 hover:text-gray-700"">
                                    ✕
@@ -436,6 +436,15 @@ string GetHomePage(string antiforgeryToken)
                    window.showTourOnMap = function(tourId) {{
                        activeTourId = tourId;
                        
+                       // Get tour div and tour name
+                       var tourDiv = document.querySelector('[data-tour-id=""' + tourId + '""]');
+                       if (!tourDiv) return;
+                       
+                       var tourName = tourDiv.querySelector('h3').textContent;
+                       
+                       // Update map panel heading with tour name
+                       document.getElementById('map-panel-title').textContent = 'Tour Map: ' + tourName;
+                       
                        // Show map panel
                        var mapPanel = document.getElementById('map-panel');
                        mapPanel.classList.remove('hidden');
@@ -449,12 +458,9 @@ string GetHomePage(string antiforgeryToken)
                        }}, 100);
                        
                        // Get checkpoints from data attribute
-                       var tourDiv = document.querySelector('[data-tour-id=""' + tourId + '""]');
-                       if (tourDiv) {{
-                           var checkpointsJson = tourDiv.getAttribute('data-checkpoints');
-                           var checkpoints = JSON.parse(checkpointsJson);
-                           updateMapMarkers(checkpoints);
-                       }}
+                       var checkpointsJson = tourDiv.getAttribute('data-checkpoints');
+                       var checkpoints = JSON.parse(checkpointsJson);
+                       updateMapMarkers(checkpoints);
                    }};
                    
                    // Function to update markers
