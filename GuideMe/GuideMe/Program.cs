@@ -272,25 +272,62 @@ string GetCheckpointsHtml(int tourId, List<Checkpoint> tourCheckpoints, string a
     
     var html = @"<div class=""space-y-2"">";
     
-    foreach (var cp in tourCheckpoints)
+    for (int i = 0; i < tourCheckpoints.Count; i++)
     {
+        var cp = tourCheckpoints[i];
+        var prevCheckpoint = i > 0 ? tourCheckpoints[i - 1] : null;
+        var nextCheckpoint = i < tourCheckpoints.Count - 1 ? tourCheckpoints[i + 1] : null;
+        
         html += $@"
             <div class=""flex items-center gap-2 bg-gray-50 p-3 rounded"">
                 <span class=""flex-1 font-medium"">{cp.Order + 1}. {cp.Name}</span>
-                <div class=""flex gap-1"">
-                    <select onchange=""if(this.value) {{ htmx.ajax('POST', this.value, {{target: '#checkpoints-{tourId}', swap: 'innerHTML', headers: {{'X-CSRF-TOKEN': '{antiforgeryToken}'}}}}); this.value=''; }}"" 
-                            class=""text-sm px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"">
-                        <option value="""">Move...</option>";
+                <div class=""flex gap-1"">";
         
-        foreach (var other in tourCheckpoints.Where(c => c.Id != cp.Id))
+        // Up arrow button (move before previous checkpoint)
+        if (prevCheckpoint != null)
         {
             html += $@"
-                        <option value=""/checkpoints/{cp.Id}/move-before/{other.Id}"">Before: {other.Name}</option>
-                        <option value=""/checkpoints/{cp.Id}/move-after/{other.Id}"">After: {other.Name}</option>";
+                    <button 
+                        hx-post=""/checkpoints/{cp.Id}/move-before/{prevCheckpoint.Id}"" 
+                        hx-target=""#checkpoints-{tourId}""
+                        hx-swap=""innerHTML""
+                        hx-headers='{{""X-CSRF-TOKEN"": ""{antiforgeryToken}""}}'
+                        class=""bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300 text-sm""
+                        title=""Move up"">
+                        ↑
+                    </button>";
+        }
+        else
+        {
+            html += @"
+                    <button class=""bg-gray-100 text-gray-400 px-2 py-1 rounded text-sm cursor-not-allowed"" disabled>
+                        ↑
+                    </button>";
+        }
+        
+        // Down arrow button (move after next checkpoint)
+        if (nextCheckpoint != null)
+        {
+            html += $@"
+                    <button 
+                        hx-post=""/checkpoints/{cp.Id}/move-after/{nextCheckpoint.Id}"" 
+                        hx-target=""#checkpoints-{tourId}""
+                        hx-swap=""innerHTML""
+                        hx-headers='{{""X-CSRF-TOKEN"": ""{antiforgeryToken}""}}'
+                        class=""bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300 text-sm""
+                        title=""Move down"">
+                        ↓
+                    </button>";
+        }
+        else
+        {
+            html += @"
+                    <button class=""bg-gray-100 text-gray-400 px-2 py-1 rounded text-sm cursor-not-allowed"" disabled>
+                        ↓
+                    </button>";
         }
         
         html += $@"
-                    </select>
                     <button 
                         hx-delete=""/checkpoints/{cp.Id}"" 
                         hx-target=""#checkpoints-{tourId}""
