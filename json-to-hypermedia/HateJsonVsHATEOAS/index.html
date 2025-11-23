@@ -3,25 +3,35 @@
     Loading current time...
 </div>
 <script>
-    fetch("/current-time")
-    .then((response) => response.json())
-    .then((data) => {
-        const timeContainer = document.getElementById("time-container");
-        timeContainer.innerHTML = `Current Time: ${data.currentTime}<br/>`;
-        const links = data._links;
-        for (const rel in links) {
-            const link = links[rel];
-            const anchor = document.createElement("a");
-            anchor.href = link.href;
-            anchor.textContent = rel;
-            timeContainer.appendChild(anchor);
-            timeContainer.appendChild(document.createTextNode(" ")); // Add space between links
-        }
-        timeContainer.appendChild(anchor);
-    })
-    .catch((error) => {
-        console.error("Error fetching current time:", error);
-        const timeContainer = document.getElementById("time-container");
-        timeContainer.innerHTML = "Failed to load current time.";
-    });
+    document.body.onload = () => {
+        fetchCurrentTime();
+    };
+    function fetchCurrentTime() {
+        fetch("/current-time")
+            .then((response) => response.json())
+            .then((data) => {
+                const timeContainer = document.getElementById("time-container");
+                timeContainer.innerHTML = `Current Time: ${data.time}<br/>`;
+                const links = data._links;
+                for (const rel in links) {
+                    const link = links[rel];
+                    const anchor = document.createElement("a");
+                    anchor.href = link.href;
+                    anchor.textContent = rel;
+                    timeContainer.appendChild(anchor);
+                    timeContainer.appendChild(document.createTextNode(" ")); // Add space between links
+                }
+
+                const anchor = document.createElement("a");
+                anchor.onclick = fetchCurrentTime;
+                anchor.href = "#";
+                anchor.textContent = "check time";
+                timeContainer.appendChild(anchor);
+            })
+            .catch((error) => {
+                console.error("Error fetching current time:", error);
+                const timeContainer = document.getElementById("time-container");
+                timeContainer.innerHTML = "Failed to load current time.";
+            });
+    } 
 </script>
