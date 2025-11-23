@@ -1,0 +1,27 @@
+<h1>HATEOAS Example</h1>
+<div id="time-container">
+    Loading current time...
+</div>
+<script>
+    fetch("/current-time")
+    .then((response) => response.json())
+    .then((data) => {
+        const timeContainer = document.getElementById("time-container");
+        timeContainer.innerHTML = `Current Time: ${data.currentTime}<br/>`;
+        const links = data._links;
+        for (const rel in links) {
+            const link = links[rel];
+            const anchor = document.createElement("a");
+            anchor.href = link.href;
+            anchor.textContent = rel;
+            timeContainer.appendChild(anchor);
+            timeContainer.appendChild(document.createTextNode(" ")); // Add space between links
+        }
+        timeContainer.appendChild(anchor);
+    })
+    .catch((error) => {
+        console.error("Error fetching current time:", error);
+        const timeContainer = document.getElementById("time-container");
+        timeContainer.innerHTML = "Failed to load current time.";
+    });
+</script>
