@@ -26,7 +26,7 @@
                     timeContainer.appendChild(document.createTextNode(" ")); // Add space between links
                 }
 
-                const refreshingButton = document.createElement("a");
+                const refreshingButton = document.createElement("button");
                 refreshingButton.onclick = function() {
                     const interval = startRefreshingCurrentTime(refreshingButton)
                     
@@ -44,8 +44,8 @@
             });
     }
     
-    function startRefreshingCurrentTime(anchor) {
-        anchor.textContent = "stop refreshing";
+    function startRefreshingCurrentTime(button) {
+        button.textContent = "stop refreshing";
         return setInterval(() => {
             fetchCurrentTime()
                 .then(data => {
@@ -55,12 +55,12 @@
         }, 1000)
     }
     
-    function stopRefreshingCurrentTime(interval, anchor) {
+    function stopRefreshingCurrentTime(interval, button) {
         return function() {
             clearInterval(interval);
-            anchor.textContent = "start refreshing";
-            anchor.onclick = function() {
-                const newInterval = startRefreshingCurrentTime(anchor);
+            button.textContent = "start refreshing";
+            button.onclick = function() {
+                const newInterval = startRefreshingCurrentTime(button);
                 this.onclick = stopRefreshingCurrentTime(newInterval, this);
                 return false; // Prevent default link behavior
             };
