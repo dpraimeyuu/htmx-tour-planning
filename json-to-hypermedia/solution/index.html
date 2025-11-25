@@ -1,0 +1,88 @@
+<h1>HATE JSON Example</h1>
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<div id="time-container">
+    Loading current time...
+</div>
+<script>
+    function fetchCurrentTime() {
+        return fetch("/current-time")
+            .then((response) => response.json())
+    }
+    document.body.onload = () => {
+        loadCurrentTime();
+    };
+    function loadCurrentTime() {
+        fetchCurrentTime()
+            .then((data) => {
+                const timeContainer = document.getElementById("time-container");
+                timeContainer.innerHTML = `<span id="time">Current Time: ${data.time}</span><br/>`;
+                const links = data._links;
+                for (const rel in links) {
+                    const link = links[rel];
+                    const anchor = document.createElement("a");
+                    anchor.href = link.href;
+                    anchor.textContent = rel;
+                    timeContainer.appendChild(anchor);
+                    timeContainer.appendChild(document.createTextNode(" ")); // Add space between links
+                }
+
+                const refreshingButton = document.createElement("button");
+                if(data.refreshingSessionsLimitReached)
+                {
+                    refreshingButton.disabled = true;
+                    refreshingButton.title = "Refreshing sessions limit reached";
+                }
+                refreshingButton.onclick = function() {
+                    startRefreshingCurrentTime(refreshingButton)
+                        .then((interval) => {
+                            this.onclick = stopRefreshingCurrentTime(interval, this);
+                        })
+                    
+                    return false; // Prevent default link behavior
+                };
+                refreshingButton.href = "#";
+                refreshingButton.textContent = "start refreshing";
+                timeContainer.appendChild(refreshingButton);
+            })
+            .catch((error) => {
+                console.error("Error fetching current time:", error);
+                const timeContainer = document.getElementById("time-container");
+                timeContainer.innerHTML = "Failed to load current time.";
+            });
+    }
+    
+    function startRefreshingCurrentTime(button) {
+        return fetch("time/refreshing", {method: "PUT"})
+            .then((response) => response.json())
+            .then((data) => {
+                if(data.refreshingSessionsLimitReached)
+                {
+                    button.disabled = true;
+                    button.title = "Refreshing sessions limit reached";
+                }
+                button.textContent = "stop refreshing";
+                return setInterval(() => {
+                    fetchCurrentTime()
+                        .then(data => {
+                            const timeContainer = document.getElementById("time");
+                            timeContainer.innerHTML = `Current Time: ${data.time}`;
+                        })
+                }, 1000) 
+            });
+    }
+    
+    function stopRefreshingCurrentTime(interval, button) {
+        return function() {
+            clearInterval(interval);
+            button.textContent = "start refreshing";
+            button.onclick = function() {
+                startRefreshingCurrentTime(button)
+                    .then((newInterval) => {
+                        this.onclick = stopRefreshingCurrentTime(newInterval, this);
+                    })
+                return false; // Prevent default link behavior
+            };
+            return false;
+        };
+    }
+</script>
