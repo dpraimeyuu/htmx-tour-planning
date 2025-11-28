@@ -1,7 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapGet("/", () => Results.Content(File.ReadAllText("frontendowiec.html"), "text/html"));
+app.MapGet("/", () => Results.Content(File.ReadAllText("frontend-engineer.html"), "text/html"));
 app.MapGet("/current-time", () => Results.Json(new
 {
     time = DateTime.UtcNow,
