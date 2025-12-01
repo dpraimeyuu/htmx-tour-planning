@@ -26,6 +26,6 @@ There are two scripts provided to help you work with the exercises:
 
 **⚠️NOTE⚠️**: This will overwrite any changes you have made in the exercise folder!
 
-* `./hide-solution.sh`: This script will reset the exercise folder to its original state by copying the files from the `./solutions/<exercise-folder-name>/starter` folder into the exercise folder.
+* `./hide-solution.sh`: This script will reset the exercise folder to its original state
 
 **⚠️NOTE⚠️**: this does hard reset and all changes are lost.
